@@ -1,0 +1,10 @@
+node_modules/
+dist/
+blender_work/
+*.blend
+*.blend1
+.env
+.env.*
+.DS_Store
+Thumbs.db
+*.log

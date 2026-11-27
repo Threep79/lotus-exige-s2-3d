@@ -142,6 +142,21 @@ export class CarAssembly {
         obj.castShadow = !isGlass;
         obj.receiveShadow = true;
 
+        if (isGlass) {
+          const mats = Array.isArray(obj.material) ? obj.material : [obj.material];
+          for (const m of mats) {
+            if (!m) continue;
+            m.transparent = true;
+            m.depthWrite = false;
+            m.depthTest = true;
+            m.side = THREE.DoubleSide;
+            if (m.name.includes('Glass_Side')) {
+              m.opacity = 0.28;
+            }
+            m.needsUpdate = true;
+          }
+        }
+
         // Find owning top-level GRP_* id for shader/ghost categorization
         let groupId = 'unknown';
         let cur = obj;
@@ -172,6 +187,7 @@ export class CarAssembly {
       (m) =>
         m &&
         (m.transparent ||
+          m.name.includes('Glass') ||
           m.name.includes('glass') ||
           m.name.includes('Vetro') ||
           m.name.includes('CAR_lights_0'))

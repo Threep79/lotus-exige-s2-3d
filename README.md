@@ -67,6 +67,7 @@ Alle verwendeten Assets und Bibliotheken sind kostenlos und frei lizenziert:
 | **2009 Lotus Exige S** (Karosserie, Räder & Cockpit-Basis) | `supercarmodels` (Sketchfab) | **CC Attribution (CC BY 4.0)** | https://sketchfab.com/3d-models/0cb63fb6d4d4459f8cd5bcb69b5fbe84 |
 | **Car Disc Brake** (Gelochte Bremsscheiben & Bremssättel) | `joko_p` (Sketchfab) | **CC Attribution (CC BY 4.0)** | https://sketchfab.com/3d-models/9e2440a2fa624b31abd0963902217407 |
 | **Momo Steering Wheel** (3-Speichen-Sportlenkrad) | `st.angelo` (Sketchfab) | **CC Attribution (CC BY 4.0)** | https://sketchfab.com/3d-models/64fbcccf077e49a298679d6119508682 |
+| **Car Engine 4 Cylinder - Toyota 1ZZ-FE** (Basis des 1,8-L-ZZ-Motorblocks) | `zarrarabbas73` (Sketchfab) | **CC Attribution (CC BY 4.0)** | https://sketchfab.com/3d-models/3442d69b82b6416389eff8e961dfe333 |
 | **Wooden Studio 17** (`dark_studio.hdr`) | Alexander Scholten (Poly Haven) | **CC0 1.0 (Public Domain)** | https://polyhaven.com/a/wooden_studio_17 |
 | **Monochrome Studio 03** (`softbox_showroom.hdr`) | Grzegorz Wronkowski (Poly Haven) | **CC0 1.0 (Public Domain)** | https://polyhaven.com/a/monochrome_studio_03 |
 | **Dresden Station Night** (`night_hall.hdr`) | Greg Zaal (Poly Haven) | **CC0 1.0 (Public Domain)** | https://polyhaven.com/a/dresden_station_night |

@@ -147,29 +147,8 @@ export class HotspotManager {
         { passive: false }
       );
 
-      let downPt = null;
-      btn.addEventListener('pointerdown', (e) => {
-        downPt = { x: e.clientX, y: e.clientY };
-        this.domElement.dispatchEvent(
-          new PointerEvent('pointerdown', {
-            pointerId: e.pointerId,
-            pointerType: e.pointerType,
-            button: e.button,
-            buttons: e.buttons,
-            clientX: e.clientX,
-            clientY: e.clientY,
-            bubbles: true,
-          })
-        );
-      });
-
       btn.addEventListener('click', (e) => {
         e.stopPropagation();
-        if (downPt && Math.hypot(e.clientX - downPt.x, e.clientY - downPt.y) > 5) {
-          downPt = null;
-          return;
-        }
-        downPt = null;
         this.setActive(hs.id);
         if (this.onSelectHotspot) this.onSelectHotspot(hs);
       });

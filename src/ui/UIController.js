@@ -112,6 +112,9 @@ export class UIController {
   syncCockpitButton(isCockpit) {
     this.els.toggleCockpitBtn.classList.toggle('active', isCockpit);
     this.els.toggleCockpitLabel.textContent = isCockpit ? 'Außenansicht' : 'Cockpit-Ansicht';
+    if (this.hotspotMgr) {
+      this.hotspotMgr.setCockpitHidden(isCockpit);
+    }
   }
 
   _bindInteractiveParts() {

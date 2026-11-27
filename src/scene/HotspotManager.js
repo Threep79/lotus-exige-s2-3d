@@ -4,7 +4,7 @@ export const HOTSPOTS_DATA = [
   {
     id: 'hs_engine',
     nodeId: 'GRP_Motor_Antrieb',
-    localOffset: new THREE.Vector3(0.0, 0.34, 0.0),
+    localOffset: new THREE.Vector3(0.0, 0.24, 0.0),
     badge: 'ANTRIEB & KOMPRESSOR',
     title: '1,8-L-Toyota-2ZZ-GE-Motor',
     description:
@@ -19,7 +19,7 @@ export const HOTSPOTS_DATA = [
   {
     id: 'hs_chassis',
     nodeId: 'GRP_Chassis',
-    localOffset: new THREE.Vector3(0.0, 0.42, -0.05),
+    localOffset: new THREE.Vector3(0.58, 0.26, 0.0),
     badge: 'STRUKTUR-MONOCOQUE',
     title: 'Extrudiertes Aluminium-Chassis',
     description:
@@ -34,7 +34,7 @@ export const HOTSPOTS_DATA = [
   {
     id: 'hs_suspension',
     nodeId: 'Fahrwerk_VL',
-    localOffset: new THREE.Vector3(0.18, 0.16, 0.0),
+    localOffset: new THREE.Vector3(0.0, 0.08, 0.0),
     badge: 'FAHRWERK & KINEMATIK',
     title: 'Doppelquerlenker-Fahrwerk',
     description:
@@ -49,7 +49,7 @@ export const HOTSPOTS_DATA = [
   {
     id: 'hs_brakes',
     nodeId: 'Bremse_VL',
-    localOffset: new THREE.Vector3(0.06, 0.18, 0.0),
+    localOffset: new THREE.Vector3(0.0, 0.0, 0.0),
     badge: 'VERZÖGERUNG',
     title: 'Hochleistungs-Bremsanlage',
     description:
@@ -64,7 +64,7 @@ export const HOTSPOTS_DATA = [
   {
     id: 'hs_aero',
     nodeId: 'Aero_Heckfluegel',
-    localOffset: new THREE.Vector3(0.0, 0.12, 0.0),
+    localOffset: new THREE.Vector3(0.0, 0.06, 0.0),
     badge: 'AERODYNAMIK',
     title: 'Heckflügel, Diffusor & Roof Scoop',
     description:
@@ -79,7 +79,7 @@ export const HOTSPOTS_DATA = [
   {
     id: 'hs_interior',
     nodeId: 'GRP_Interieur',
-    localOffset: new THREE.Vector3(0.24, 0.34, -0.1),
+    localOffset: new THREE.Vector3(0.0, 0.1, 0.14),
     badge: 'COCKPIT & LEICHTBAU',
     title: 'Puristisches Fahrer-Cockpit',
     description:
@@ -94,12 +94,14 @@ export const HOTSPOTS_DATA = [
 ];
 
 export class HotspotManager {
-  constructor(layerEl, camera, carAssembly, onSelectHotspot) {
+  constructor(layerEl, camera, domElement, carAssembly, onSelectHotspot) {
     this.layerEl = layerEl;
     this.camera = camera;
+    this.domElement = domElement;
     this.carAssembly = carAssembly;
     this.onSelectHotspot = onSelectHotspot;
     this.enabled = true;
+    this.cockpitHidden = false;
     this.activeId = null;
 
     this.items = [];
@@ -119,11 +121,59 @@ export class HotspotManager {
         <span class="hotspot-dot"></span>
         <span class="hotspot-tag">${hs.title}</span>
       `;
+
+      // Never block wheel zooming on the 3D canvas while hovering a hotspot
+      btn.addEventListener(
+        'wheel',
+        (e) => {
+          e.preventDefault();
+          this.domElement.dispatchEvent(
+            new WheelEvent('wheel', {
+              deltaX: e.deltaX,
+              deltaY: e.deltaY,
+              deltaZ: e.deltaZ,
+              deltaMode: e.deltaMode,
+              clientX: e.clientX,
+              clientY: e.clientY,
+              ctrlKey: e.ctrlKey,
+              shiftKey: e.shiftKey,
+              altKey: e.altKey,
+              metaKey: e.metaKey,
+              bubbles: true,
+              cancelable: true,
+            })
+          );
+        },
+        { passive: false }
+      );
+
+      let downPt = null;
+      btn.addEventListener('pointerdown', (e) => {
+        downPt = { x: e.clientX, y: e.clientY };
+        this.domElement.dispatchEvent(
+          new PointerEvent('pointerdown', {
+            pointerId: e.pointerId,
+            pointerType: e.pointerType,
+            button: e.button,
+            buttons: e.buttons,
+            clientX: e.clientX,
+            clientY: e.clientY,
+            bubbles: true,
+          })
+        );
+      });
+
       btn.addEventListener('click', (e) => {
         e.stopPropagation();
+        if (downPt && Math.hypot(e.clientX - downPt.x, e.clientY - downPt.y) > 5) {
+          downPt = null;
+          return;
+        }
+        downPt = null;
         this.setActive(hs.id);
         if (this.onSelectHotspot) this.onSelectHotspot(hs);
       });
+
       this.layerEl.appendChild(btn);
 
       this.items.push({
@@ -134,12 +184,22 @@ export class HotspotManager {
     }
   }
 
-  setEnabled(enabled) {
-    this.enabled = enabled;
-    this.layerEl.style.display = enabled ? 'block' : 'none';
-    if (!enabled) {
+  _syncLayerVisibility() {
+    const show = this.enabled && !this.cockpitHidden;
+    this.layerEl.style.display = show ? 'block' : 'none';
+    if (!show) {
       this.setActive(null);
     }
+  }
+
+  setEnabled(enabled) {
+    this.enabled = enabled;
+    this._syncLayerVisibility();
+  }
+
+  setCockpitHidden(hidden) {
+    this.cockpitHidden = hidden;
+    this._syncLayerVisibility();
   }
 
   setActive(id) {
@@ -159,9 +219,10 @@ export class HotspotManager {
   }
 
   update() {
-    if (!this.enabled) return;
-    const width = window.innerWidth;
-    const height = window.innerHeight;
+    if (!this.enabled || this.cockpitHidden) return;
+    const rect = this.domElement.getBoundingClientRect();
+    const width = rect.width || window.innerWidth;
+    const height = rect.height || window.innerHeight;
 
     for (const item of this.items) {
       if (!item.node || !this._isVisibleInHierarchy(item.node)) {
@@ -170,8 +231,8 @@ export class HotspotManager {
         continue;
       }
 
-      item.node.getWorldPosition(this._tempVec);
-      this._tempVec.add(item.data.localOffset);
+      item.node.updateWorldMatrix(true, false);
+      this._tempVec.copy(item.data.localOffset).applyMatrix4(item.node.matrixWorld);
       this._tempVec.project(this.camera);
 
       // Behind camera check
@@ -181,8 +242,8 @@ export class HotspotManager {
         continue;
       }
 
-      const x = (this._tempVec.x * 0.5 + 0.5) * width;
-      const y = (-this._tempVec.y * 0.5 + 0.5) * height;
+      const x = rect.left + (this._tempVec.x * 0.5 + 0.5) * width;
+      const y = rect.top + (-this._tempVec.y * 0.5 + 0.5) * height;
 
       item.el.style.left = `${x.toFixed(1)}px`;
       item.el.style.top = `${y.toFixed(1)}px`;

@@ -51,6 +51,7 @@ async function bootstrap() {
     const hotspotMgr = new HotspotManager(
       hotspotsLayer,
       showroom.camera,
+      showroom.renderer.domElement,
       carAssembly,
       (hs) => {
         if (uiCtrl) uiCtrl.showHotspotCard(hs);

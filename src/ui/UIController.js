@@ -8,13 +8,14 @@ const ISOLATE_SVG = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none"
 const CHEVRON_SVG = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="9 18 15 12 9 6"/></svg>`;
 
 export class UIController {
-  constructor({ showroom, cameraCtrl, carAssembly, explosionCtrl, materialMgr, hotspotMgr }) {
+  constructor({ showroom, cameraCtrl, carAssembly, explosionCtrl, materialMgr, hotspotMgr, interactiveCtrl }) {
     this.showroom = showroom;
     this.cameraCtrl = cameraCtrl;
     this.carAssembly = carAssembly;
     this.explosionCtrl = explosionCtrl;
     this.materialMgr = materialMgr;
     this.hotspotMgr = hotspotMgr;
+    this.interactiveCtrl = interactiveCtrl;
 
     this.isolatedId = null;
     this.leftCollapsed = false;
@@ -26,6 +27,10 @@ export class UIController {
       toggleLeftBtn: document.getElementById('toggle-left-btn'),
       toggleRightBtn: document.getElementById('toggle-right-btn'),
       toggleFocusBtn: document.getElementById('toggle-focus-btn'),
+      toggleCockpitBtn: document.getElementById('toggle-cockpit-btn'),
+      toggleCockpitLabel: document.getElementById('toggle-cockpit-label'),
+      interactiveBtns: document.querySelectorAll('#interactive-parts-grid .chip-btn'),
+      interactTooltip: document.getElementById('interact-tooltip'),
       explosionSlider: document.getElementById('explosion-slider'),
       explosionValue: document.getElementById('explosion-value'),
       presetBtns: document.querySelectorAll('.preset-btn'),
@@ -54,6 +59,7 @@ export class UIController {
 
     this._activeHotspot = null;
     this._bindHeaderAndPanels();
+    this._bindInteractiveParts();
     this._bindExplosion();
     this._buildPartsList();
     this._buildPaintSwatches();
@@ -89,6 +95,55 @@ export class UIController {
       this.rightCollapsed = enterFocus;
       syncPanels();
     });
+
+    this.els.toggleCockpitBtn.addEventListener('click', () => {
+      const enterCockpit = !this.cameraCtrl.isCockpitMode;
+      if (enterCockpit) {
+        this.showAllParts();
+        this._setExplosionPercent(0);
+        this.hideHotspotCard();
+        this.els.autorotateToggle.checked = false;
+        this.cameraCtrl.setAutoRotate(false);
+      }
+      this.cameraCtrl.setCockpitMode(enterCockpit);
+    });
+  }
+
+  syncCockpitButton(isCockpit) {
+    this.els.toggleCockpitBtn.classList.toggle('active', isCockpit);
+    this.els.toggleCockpitLabel.textContent = isCockpit ? 'Außenansicht' : 'Cockpit-Ansicht';
+  }
+
+  _bindInteractiveParts() {
+    this.els.interactiveBtns.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const key = btn.dataset.partKey;
+        if (this.interactiveCtrl) {
+          this.interactiveCtrl.toggle(key);
+        }
+      });
+    });
+  }
+
+  syncInteractiveParts(states) {
+    this.els.interactiveBtns.forEach((btn) => {
+      const key = btn.dataset.partKey;
+      const isOpen = Boolean(states[key]);
+      btn.classList.toggle('active', isOpen);
+      if (key === 'roof') {
+        btn.textContent = isOpen ? 'Hardtop-Dach aufsetzen' : 'Hardtop-Dach abnehmen';
+      }
+    });
+  }
+
+  setHoverTooltip(info) {
+    if (!this.els.interactTooltip) return;
+    if (!info) {
+      this.els.interactTooltip.classList.add('hidden');
+      return;
+    }
+    this.els.interactTooltip.textContent = info.text;
+    this.els.interactTooltip.classList.remove('hidden');
   }
 
   _bindExplosion() {
@@ -352,6 +407,7 @@ export class UIController {
     this.els.resetViewBtn.addEventListener('click', () => {
       this.showAllParts();
       this._setExplosionPercent(0);
+      if (this.interactiveCtrl) this.interactiveCtrl.closeAll();
       this.hideHotspotCard();
       this.cameraCtrl.resetView();
     });

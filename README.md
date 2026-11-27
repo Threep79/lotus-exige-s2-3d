@@ -9,7 +9,8 @@ Eine realistische, interaktive **3D-Explosionszeichnungs-Webseite (Interactive 3
 
 ## Features
 
-- **Freie 3D-Showroom-Kamera:** 360°-Rotation mit weichem Damping, stufenloser Zoom, Panning, Boden-Kollisionsschutz und sanfte Kamerafahrten bei Bauteil-Isolation.
+- **Freie 3D-Showroom-Kamera & Cockpit-Ansicht:** 360°-Rotation mit weichem Damping, stufenloser Zoom, Panning, Boden-Kollisionsschutz, sanfte Kamerafahrten bei Bauteil-Isolation sowie direkter Wechsel in die **Fahrer-Cockpit-Ansicht (POV)**.
+- **Direkt anklickbare Karosserie-Elemente:** Per Klick direkt auf dem 3D-Modell (oder über das Bedienpanel) lassen sich **Fahrer- & Beifahrertür** an ihren Scharnieren öffnen, die **Motorhaube samt Kofferraum-Fach** aufklappen, die **Front-Serviceklappen** (Kühlerzugang) öffnen sowie das **Hardtop-Dach inkl. Dach-Lufthutze** einzeln abnehmen.
 - **Mehrstufiges Explosionssystem (0 % – 100 %):** Stufenloser Slider und Schnellwahl-Presets (*Montiert*, *Teilexplosion*, *Voll zerlegt*) über alle 11 technischen Baugruppen hinweg:
   - Front-Clamshell & Lichter (`GRP_Karosserie_FrontClam`)
   - Heck-Clamshell & Motorabdeckung (`GRP_Karosserie_HeckClam`)

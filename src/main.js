@@ -6,6 +6,7 @@ import { CarAssembly } from './scene/CarAssembly.js';
 import { ExplosionController } from './scene/ExplosionController.js';
 import { MaterialManager } from './scene/MaterialManager.js';
 import { HotspotManager } from './scene/HotspotManager.js';
+import { InteractivePartsController } from './scene/InteractivePartsController.js';
 import { UIController } from './ui/UIController.js';
 
 async function bootstrap() {
@@ -23,8 +24,15 @@ async function bootstrap() {
     if (msg) loadingStatus.textContent = msg;
   };
 
+  let uiCtrl = null;
   const showroom = new ShowroomScene(container);
-  const cameraCtrl = new CameraController(showroom.camera, showroom.renderer.domElement);
+  const cameraCtrl = new CameraController(
+    showroom.camera,
+    showroom.renderer.domElement,
+    (isCockpit) => {
+      if (uiCtrl) uiCtrl.syncCockpitButton(isCockpit);
+    }
+  );
   const carAssembly = new CarAssembly(showroom.scene);
 
   try {
@@ -36,17 +44,30 @@ async function bootstrap() {
       setProgress(25 + frac * 70);
     });
 
-    setProgress(98, 'Initialisiere Explosions- & Shader-System …');
+    setProgress(98, 'Initialisiere Explosions-, Interaktions- & Shader-System …');
     const explosionCtrl = new ExplosionController(carAssembly, showroom);
     const materialMgr = new MaterialManager(carAssembly);
 
-    let uiCtrl = null;
     const hotspotMgr = new HotspotManager(
       hotspotsLayer,
       showroom.camera,
       carAssembly,
       (hs) => {
         if (uiCtrl) uiCtrl.showHotspotCard(hs);
+      }
+    );
+
+    const interactiveCtrl = new InteractivePartsController(
+      carAssembly,
+      showroom.camera,
+      showroom.renderer.domElement,
+      {
+        onStateChange: (states) => {
+          if (uiCtrl) uiCtrl.syncInteractiveParts(states);
+        },
+        onHoverChange: (info) => {
+          if (uiCtrl) uiCtrl.setHoverTooltip(info);
+        },
       }
     );
 
@@ -57,6 +78,7 @@ async function bootstrap() {
       explosionCtrl,
       materialMgr,
       hotspotMgr,
+      interactiveCtrl,
     });
 
     setProgress(100, 'Bereit');
@@ -69,6 +91,7 @@ async function bootstrap() {
       requestAnimationFrame(animate);
       const dt = Math.min(clock.getDelta(), 0.05);
       explosionCtrl.update(dt);
+      interactiveCtrl.update(dt);
       cameraCtrl.update(dt);
       hotspotMgr.update();
       showroom.render();

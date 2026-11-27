@@ -405,6 +405,7 @@ body,
   overflow-y: auto;
   padding-right: 2px;
   margin-bottom: 10px;
+  min-height: 180px;
   flex: 1 1 auto;
 }
 
@@ -417,6 +418,7 @@ body,
 }
 
 .part-group {
+  flex-shrink: 0;
   border-radius: var(--radius-sm);
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(255, 255, 255, 0.06);
@@ -919,6 +921,37 @@ body,
   font-size: 0.9rem;
   font-weight: 600;
   color: var(--accent);
+}
+
+/* Interactive Hover Tooltip */
+.span-two {
+  grid-column: span 2;
+}
+
+.interact-tooltip {
+  position: fixed;
+  bottom: 50px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 22;
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: rgba(12, 15, 22, 0.88);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(223, 177, 91, 0.45);
+  color: var(--accent);
+  font-size: 0.76rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  pointer-events: none;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.55);
+  transition: opacity 0.16s ease, transform 0.16s ease;
+}
+
+.interact-tooltip.hidden {
+  opacity: 0;
+  transform: translate(-50%, 6px);
 }
 
 /* Responsive */

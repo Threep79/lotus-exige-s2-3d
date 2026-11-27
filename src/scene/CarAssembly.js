@@ -120,8 +120,12 @@ export class CarAssembly {
       this.root.position.y -= box.min.y;
     }
 
-    // Index all technical groups & sub-groups
-    const targetIds = new Set();
+    // Index all technical groups, sub-groups & interactive hinges/lids
+    const targetIds = new Set([
+      'Klappe_Motor_Kofferraum',
+      'Klappe_Service_Vorne',
+      'Dach_Hardtop',
+    ]);
     for (const grp of PARTS_CATALOG) {
       targetIds.add(grp.id);
       if (grp.children) {
